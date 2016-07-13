@@ -1,23 +1,37 @@
-// es6 import style
-import $ from 'jquery';
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import SearchBar from './components/search_bar';
+import youtubeSearch from './youtube-api';
+import VideoList from './components/video_list';
+import VideoDetail from './components/video_detail';
 
-import './style.scss';
 
+class App extends Component {
+  constructor(props) {
+    super(props);
 
-// this is a generator function.
-// note the *
-function *simpleCounter() {
-  let count = 0;
-  while (true) {
-    yield count++;
+    this.state = {
+      videos: [],
+      selectedVideo: null,
+    };
+
+    youtubeSearch('pixar').then(videos => {
+      this.setState({
+        videos,
+        selectedVideo: videos[0],
+      });
+    });
+  }
+
+  render() {
+    return (
+      <div>
+        <SearchBar />
+        <VideoDetail video={this.state.selectedVideo} />
+        <VideoList onVideoSelect={selectedVideo => this.setState({ selectedVideo })} videos={this.state.videos} />
+      </div>
+    );
   }
 }
 
-// instantiate generator
-const counter = simpleCounter();
-
-setInterval(
-  // arrow notation for anonymous function
-  () => { $('#main').html(`You've been on this page for ${counter.next().value} seconds.`); }
-  , 1000
-);
+ReactDOM.render(<App />, document.getElementById('main'));
